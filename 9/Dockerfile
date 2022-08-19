@@ -11,8 +11,15 @@ ENV IDEMPIERE_BUILD https://jenkins.idempiere.org/job/iDempiere9/ws/org.idempier
 WORKDIR $IDEMPIERE_HOME
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends nano postgresql-client && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends nano lsb-release
+
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends postgresql-client-13
+
+RUN  rm -rf /var/lib/apt/lists/*
 
 RUN wget --no-check-certificate $IDEMPIERE_BUILD -O /tmp/idempiere-server.zip && \
     echo "Hash: $(md5sum /tmp/idempiere-server.zip)" > $IDEMPIERE_HOME/MD5SUMS && \
